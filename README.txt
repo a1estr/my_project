@@ -1,0 +1,1 @@
+This is file with instructions for installing current project.
