@@ -63,23 +63,23 @@ if letters:
 # Получаем словарь, в котором подсчитаны для всех букв их частота
 
     letter_counts = {}
-    for i in letters:
-        letter_counts[i] = letters.count(i)
+    for key in letters:
+        letter_counts[key] = letters.count(key)
 
     most_frequent_value = max(letter_counts.values())
 
 # Получаем список, в котором будут все буквы с максимальной частотой
 
     most_frequent_letters_list = []
-    for i in letter_counts.keys():
-        if letter_counts[i] == most_frequent_value:
-            most_frequent_letters_list.append(i)
+    for key in letter_counts:
+        if letter_counts[key] == most_frequent_value:
+            most_frequent_letters_list.append(key)
 
 # Находим букву, которая будет первой в алфавите
 
     most_frequent_letter = min(most_frequent_letters_list)
     print(f"Cамая частая буква в тексте: {most_frequent_letter}",
-          f"Oна встречается в тексте {most_frequent_value} раз", sep="\n"
+          f"Oна встречается в тексте {most_frequent_value} раз(а)", sep="\n"
     )
 else:
     print("Введенный текст не содержит букв")

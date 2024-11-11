@@ -17,6 +17,6 @@ print("Количество учеников в классе 7b:", school.get("7
 school.update({"1a": 20, "2b": 30, "7b": 25})
 school["3a"] = 22
 school["3b"] = 19
-school.pop("1b")
+del school["1b"]
 print("Измененный список учащихся в школе:", school, sep="\n")
 
