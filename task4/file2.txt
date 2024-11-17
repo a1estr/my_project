@@ -1,0 +1,3 @@
+Content of the SECOND file:
+FILE 2 - test
+End of the SECOND file.
