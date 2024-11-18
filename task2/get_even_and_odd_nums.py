@@ -10,15 +10,14 @@ with open(FILENAME, "w") as file:
         file.write("\n")
 
 with open(FILENAME, "r") as file:
-    list_of_numbers = []
+    numbers_list_int = []
     for line in file:
         line = line.strip()
         numbers_list_str = line.split(" ")
-        numbers_list_int = list(map(int, numbers_list_str))
-        list_of_numbers.extend(numbers_list_int)
+        numbers_list_int.extend(list(map(int, numbers_list_str)))
     even_numbers_list = []
     odd_numbers_list = []
-    for number in list_of_numbers:
+    for number in numbers_list_int:
         if number % 2 == 0:
             even_numbers_list.append(number)
         else:

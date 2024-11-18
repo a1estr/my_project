@@ -13,12 +13,9 @@ with open(FILENAME, "r") as file:
          numbers_list_str = (line.strip()).split(" ")
          numbers_list_float = list(map(float, numbers_list_str))
          print("Вещественные числа в исходном файле:", numbers_list_float)
-         def num_square_in_list(nums_list:list) -> list:
-             end = len(nums_list)
-             for i in range(0, end):
-                 nums_list[i] = nums_list[i] ** 2
-             return nums_list
-         num_square_in_list(numbers_list_float)
+         numbers_list_float = list(map(
+             lambda element: element ** 2, numbers_list_float)
+         )
 
 print("Вещественные числа в квадрате:", numbers_list_float)
 

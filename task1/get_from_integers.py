@@ -17,18 +17,17 @@ with open(FILENAME, "w") as file:
         file.write("\n")
 
 with open(FILENAME, "r") as file:
-    list_of_numbers = []
+    numbers_list_int = []
     for line in file:
         line = line.strip()
         numbers_list_str = line.split(" ")
-        numbers_list_int = list(map(int, numbers_list_str))
-        list_of_numbers.extend(numbers_list_int)
-    print(f"Элементы в файле: {list_of_numbers}")
-    if len(list_of_numbers) >= 4:
-        print(f"Первый элемент: {list_of_numbers[0]}",
-              f"Второй элемент: {list_of_numbers[1]}",
-              f"Предпоследний элемент: {list_of_numbers[-2]}",
-              f"Последний элемент: {list_of_numbers[-1]}", sep="\n"
+        numbers_list_int.extend(list(map(int, numbers_list_str)))
+    print(f"Элементы в файле: {numbers_list_int}")
+    if len(numbers_list_int) >= 4:
+        print(f"Первый элемент: {numbers_list_int[0]}",
+              f"Второй элемент: {numbers_list_int[1]}",
+              f"Предпоследний элемент: {numbers_list_int[-2]}",
+              f"Последний элемент: {numbers_list_int[-1]}", sep="\n"
               )
     else:
         print("В файле меньше 4 элементов")
