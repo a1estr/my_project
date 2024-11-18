@@ -7,13 +7,15 @@ print(result_variables)
 
 # Функция 2
 
-result_chart_from_str = hw4.get_chars_from_str(input("Введите строку длиной не менее 8 символов:"))
+result_chart_from_str = hw4.get_chars_from_str(
+    input("Введите строку длиной не менее 8 символов:")
+)
 print(result_chart_from_str)
 
 # Функция 3
 
-my_name = "my name is name"
-print(hw4.replace_2nd_name(my_name))
+name = input("Введите ваше имя: ")
+print(hw4.replace_2nd_name(name))
 
 # Функция 4
 
@@ -35,12 +37,11 @@ school = {
     "6a": 25,
     "7b": 21
 }
-result_student_in_class = hw4.student_number_in_class(school)
-if type(result_student_in_class) == tuple:
-    selected_class, students_in_class = result_student_in_class
+selected_class, students_in_class = hw4.student_number_in_class(school)
+if students_in_class:
     print(f"Количество учеников в классе {selected_class} - {students_in_class}")
 else:
-    print(result_student_in_class)
+    print("Такого класса в школе нет")
 
 # Функция 7
 
@@ -71,7 +72,8 @@ swimmers_results = {
     "Дешук Дмитрий": 24.01,
     "Казак Анна": 28.17
 }
-print(hw4.best_from_swimmers(swimmers_results))
+best_result = hw4.best_from_swimmers(swimmers_results)
+print(f"Лучший результат показал {best_result[0]} - {best_result[1]}")
 
 # Функция 10
 

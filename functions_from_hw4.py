@@ -47,13 +47,11 @@ def get_chars_from_str(str_wth_8_char):
 
 # Функция 3
 
-def replace_2nd_name(my_name: str) -> str:
+def replace_2nd_name(name: str) -> str:
     """
     3. Есть строка: “my name is name”. Напечатайте ее, но вместо 2ого “name” вставьте ваше имя.
     """
-    split_my_name = my_name.split(" ")
-    split_my_name[3] = input("Введите ваше имя: ")
-    return " ".join(split_my_name)
+    return "my name is {}".format(name)
 
 # Функция 4
 
@@ -83,10 +81,7 @@ def student_number_in_class(school: dict):
     """
     print("Список классов в школе -", list(school.keys()))
     required_class = input("Введите интересующий вас класс: ")
-    if required_class in school.keys():
-        return required_class, school[required_class]
-    else:
-        return "Такого класса в школе нет"
+    return required_class, school.get(required_class, None)
 
 # Функция 7
 
@@ -149,13 +144,12 @@ def best_from_swimmers(swimmers_results: dict):
     Дан словарь пловцов с их результатами.
     Напечатать лучший результат заплыва среди 6 участников.
     """
-    best_result_value = min(swimmers_results.values())
     best_swimmer = 0
-    for swimmer in swimmers_results:
-        if swimmers_results[swimmer] == best_result_value:
+    for swimmer in swimmers_results.items():
+        if swimmers_results[swimmer[0]] == min(swimmers_results.values()):
             best_swimmer = swimmer
             break
-    return best_swimmer, best_result_value
+    return best_swimmer
 
 # Функция 10
 
