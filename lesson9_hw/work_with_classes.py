@@ -3,7 +3,6 @@ class Substance:
     STANDARD_PRESSURE = 101325  # стандартное давление в Pa
     AVOGADRO_CONSTANT = 6.02214076e23  # постоянная Авогадро
 
-    STATES = ["твердое", "жидкое", "газообразное"]
     PHYSICAL_PROPERTIES = ["плотность",
                            "температура плавления",
                            "температура кипения",
@@ -34,31 +33,18 @@ class Substance:
     @classmethod
     def get_physical_properties(cls):
         """
-        Возвращает список физических свойств вещества
+        Возвращает физические свойства вещества
         """
-        return cls.PHYSICAL_PROPERTIES
-
-    @classmethod
-    def get_physical_states(cls):
-        """
-        Возвращает список агрегатных состояний вещества
-        """
-        return cls.STATES
-
-    @classmethod
-    def get_substances_cont(cls):
-        """
-        Подсчитывает количество созданных веществ
-        """
-        return cls.substances_count
+        return (f"Каждое вещество обладает следующими физическими свойствами:\n"
+                f"{"\n".join(cls.PHYSICAL_PROPERTIES)}"
+                )
 
     @classmethod
     def get_default_conditions(cls):
         """
         Возвращает стандартные значения температуры и давления
         """
-        return (f"Стандартная температура - {cls.STANDARD_TEMPERATURE} K" +
-                "\n" +
+        return (f"Стандартная температура - {cls.STANDARD_TEMPERATURE} K\n"
                 f"Cтандартное давление - {cls.STANDARD_PRESSURE} Pa"
                 )
 
@@ -125,7 +111,7 @@ print(f"Объем вещества {sodium_hydroxide.formula}"
       )
 print(f"Количество атомов в {chemical_quantity} моль вещества = {atoms_number}")
 print(Substance.get_default_conditions())
-print(f"Количество созданных веществ - {Substance.get_substances_cont()}")
+print(f"Количество созданных веществ - {Substance.substances_count}")
 
 
 class Acid(Substance):
@@ -193,4 +179,4 @@ print(f"Температура плавления: {temperatues_in_kelvins[0]} K
       f"Температура кипения: {temperatues_in_kelvins[1]} K", sep="\n")
 sulfuric_acid_mass = sulfuric_acid.calculate_mass(chemical_quantity)
 print(f"Масса вещества {sulfuric_acid.formula} составляет {sulfuric_acid_mass} г.")
-print(f"Физические свойства вещества:\n{Acid.get_physical_properties()}")
+print(Acid.get_physical_properties())
