@@ -40,17 +40,18 @@ class Flower(ABC):
 
 class Rose(Flower):
     def __str__(self):
-        return super().__str__()
+        return f"Rose: {super().__str__()}"
+
 
 
 class Tulip(Flower):
     def __str__(self):
-        return super().__str__()
+        return f"Tulip: {super().__str__()}"
 
 
 class Daisy(Flower):
     def __str__(self):
-        return super().__str__()
+        return f"Daisy: {super().__str__()}"
 
 
 class Accessory:
@@ -120,11 +121,11 @@ class Bouquet:
 # Пример использования
 if __name__ == "__main__":
     # Создание цветов
-    rose = Rose(name="Rose", cost=5.0, lifespan=72)
+    rose = Rose(name="New Zealand Rose", cost=5.0, lifespan=72)
     print(rose)
-    tulip = Tulip(name="Tulip", cost=3.0, lifespan=48)
+    tulip = Tulip(name="Single Late Tulip", cost=3.0, lifespan=48)
     print(tulip)
-    daisy = Daisy(name="Daisy", cost=2.5, lifespan=36)
+    daisy = Daisy(name="Blue Marguerite Daisy", cost=2.5, lifespan=36)
     print(daisy)
 
     # Создание аксессуаров
@@ -154,5 +155,7 @@ if __name__ == "__main__":
     print(bouquet)
 
     # Проверка на наличие цветка
-    print("\nContains 'Rose':", bouquet.contains_flower("Rose"))
+    print("\nContains 'New Zealand Rose':",
+          bouquet.contains_flower("New Zealand Rose")
+          )
     print("Contains 'Orchid':", bouquet.contains_flower("Orchid"))
