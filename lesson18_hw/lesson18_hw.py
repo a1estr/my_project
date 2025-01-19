@@ -17,12 +17,13 @@ def driver():
     yield config_driver
     config_driver.quit()
 
+
 def test_task1_fill_field(driver):
     driver.get("https://omayo.blogspot.com")
     textbox = driver.find_element(By.ID, "textbox1")
     textbox.clear()
     textbox.send_keys("Selenium Test")
-    assert textbox.get_attribute("value") == "Selenium Test",\
+    assert textbox.get_attribute("value") == "Selenium Test", \
         "Введенный текст в поле 'Text Box' не совпадает"
 
 
@@ -30,8 +31,9 @@ def test_task2_dropdown(driver):
     driver.get("https://omayo.blogspot.com")
     dropdown_combobox = Select(driver.find_element(By.ID, "drop1"))
     dropdown_combobox.select_by_visible_text("doc 3")
-    assert dropdown_combobox.first_selected_option.text == "doc 3",\
+    assert dropdown_combobox.first_selected_option.text == "doc 3", \
         "Выбран неправильный элемент из выпадающего списка"
+
 
 def test_task3_tables(driver):
     driver.get("https://demoqa.com/webtables")
@@ -40,7 +42,7 @@ def test_task3_tables(driver):
     add_new_button.click()
 
     # Проверим отображение формы создания записи
-    WebDriverWait (driver, 10).until(
+    WebDriverWait(driver, 10).until(
         EC.visibility_of_element_located((By.ID, "registration-form-modal"))
     )
     assert driver.find_element(By.ID, "registration-form-modal").text == "Registration Form", \
@@ -70,7 +72,7 @@ def test_task3_tables(driver):
             driver.execute_script("arguments[0].scrollIntoView();", edit_button)
             edit_button.click()
             break
-    WebDriverWait (driver, 10).until(
+    WebDriverWait(driver, 10).until(
         EC.visibility_of_element_located((By.ID, "registration-form-modal"))
     )
     age_field = driver.find_element(By.ID, "age")
@@ -102,18 +104,19 @@ def test_task3_tables(driver):
     assert any("Jhon" not in row.text for row in delete_table_rows), \
         "Запись не была удалена"
 
+
 def test_task4_serials_search(driver):
     driver.get("http://seasonvar.ru/")
     driver.find_element(By.CLASS_NAME, "headblock-search-txt").send_keys("Castle")
     driver.find_element(By.CSS_SELECTOR, "button[type='submit']").click()
 
     # Проверим, что перешли на страницу с результатами поиска
-    assert "Castle" in driver.current_url,\
+    assert "Castle" in driver.current_url, \
         "Не удалось открыть страницу с результатами поиска"
 
     # Проверим, что результат поиска верный
     search_result = driver.find_element(By.CLASS_NAME, "pgs-search-title")
-    assert search_result.text == 'Найдено по запросу «Castle»: 26',\
+    assert search_result.text == 'Найдено по запросу «Castle»: 26', \
         "Результат поиска неверный"
 
     # Найдем сериал Касл в результатах поиска и перейдем на страницу сериала
