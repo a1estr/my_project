@@ -1,4 +1,5 @@
 import pytest
+import os
 from selenium import webdriver
 from selenium.common import TimeoutException, NoSuchElementException
 from selenium.webdriver import ActionChains
@@ -8,6 +9,8 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
 from webdriver_manager.chrome import ChromeDriverManager
+
+download_dir = "D:\TeachMeSkills\Dev\my_project\lesson21_hw"
 
 
 @pytest.fixture()
@@ -25,9 +28,11 @@ def driver_ru():
     options = Options()
     options.add_argument("--start-maximized")
     options.add_argument("--lang=ru")
-    download_dir = "D:\TeachMeSkills\Dev\my_project\lesson21_hw"
     options.add_experimental_option("prefs", {
-        "download.default_directory": download_dir
+        "download.default_directory": download_dir,
+        "download.prompt_for_download": False,
+        "download.directory_upgrade": True,
+        "safebrowsing.enabled": True
     })
     service = Service(ChromeDriverManager().install())
     config_driver = webdriver.Chrome(service=service, options=options)
@@ -103,6 +108,7 @@ def test_task3_alerts(driver):
 
 
 def test_task4_сapabilities(driver_ru):
+    # Проверка запуска браузера на русском языке
     driver_ru.get("https://www.google.com")
     assert driver_ru.execute_script("return navigator.language") == "ru-RU", \
         "Текущий язык браузера не русский"
@@ -126,39 +132,48 @@ def test_task4_сapabilities(driver_ru):
     document_button.click()
 
     # Если появляется рекламмный баннер, то закрываем его
-    wait_banner = WebDriverWait(driver_ru,
-                                timeout=5,
-                                poll_frequency=2,
-                                ignored_exceptions=[TimeoutException]
-                                )
-    iframe_banner = wait_banner.until(EC.presence_of_element_located((By.ID, "ad_iframe")))
-    driver_ru.switch_to.frame(iframe_banner)
-    driver_ru.find_element(By.ID, "dismiss-button").click()
-    driver_ru.switch_to.default_content()
+    try:
+        wait_banner = WebDriverWait(driver_ru, timeout=10, poll_frequency=1)
+        iframe_banner1 = wait_banner.until(
+            EC.presence_of_element_located((By.CSS_SELECTOR, "iframe[name*='aswift']"))
+        )
+        driver_ru.switch_to.frame(iframe_banner1)
+        iframe_banner2 = wait_banner.until(
+            EC.presence_of_element_located((By.CSS_SELECTOR, "iframe[name=ad_iframe]"))
+        )
+        driver_ru.switch_to.frame(iframe_banner2)
+        close_button = wait_banner.until(
+            EC.element_to_be_clickable((By.CSS_SELECTOR, "div#dismiss-button"))
+        )
+        close_button.click()
+        driver_ru.switch_to.default_content()
+        driver_ru.switch_to.default_content()
+
+    except TimeoutException:
+        pass
 
     # Найдем нужную кнопку для загрузки PDF файла
-    search_filter = driver_ru.find_element(By.XPATH,'//*[@id="table-files_filter"]/label/input')
-    driver_ru.execute_script("arguments[0].scrollIntoView({block: 'center'});",
-                             search_filter
-                             )
-    search_filter.send_keys("PDF")
-    import pdb
-    pdb.set_trace()
-    document_size_button = None
-    for button in document_size_buttons:
-        title = button.find_element(By.CLASS_NAME, "file-ext").text
-        if title == "PDF":
-            document_size_button = button.find_element(By.CSS_SELECTOR, "a.btn")
-            break
-    driver_ru.execute_script("arguments[0].scrollIntoView({block: 'center'});",
-                             document_size_button
-                             )
-    document_button = WebDriverWait(driver_ru, 10).until(
-        EC.element_to_be_clickable(document_size_button)
+    pdf_download = driver_ru.find_element(
+        By.CSS_SELECTOR,
+        'a[href*="sample-pdf-download"]'
     )
-    document_size_button.click()
+    pdf_download.click()
+    select_size_button = driver_ru.find_element(
+        By.CSS_SELECTOR,
+        'a[href*="150kB"]'
+    )
 
+    # Выберем размер скачиваемого файла
+    select_size_button.click()
+    download_button = WebDriverWait(driver_ru, 10).until(
+        EC.presence_of_element_located((By.ID, "documentDownload"))
+    )
+    download_button.click()
 
+    # Проверим, что файл скачался
+    files = os.listdir(download_dir)
+    assert any(f.endswith(".pdf") for f in files), \
+        "PDF файл не был скачан"
 
 
 def test_task5_actions(driver):
@@ -168,7 +183,7 @@ def test_task5_actions(driver):
     frame = driver.find_element(By.CLASS_NAME, "demo-frame")
     driver.switch_to.frame(frame)
 
-    #Найдем необходимые элементы для перетаскивания
+    # Найдем необходимые элементы для перетаскивания
     element_to_drag = driver.find_element(By.ID, "draggable")
     element_to_drop = driver.find_element(By.ID, "droppable")
 
