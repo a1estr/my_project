@@ -1,7 +1,6 @@
 import pytest
 import os
 from selenium import webdriver
-from selenium.common import TimeoutException, NoSuchElementException
 from selenium.webdriver import ActionChains
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import Select, WebDriverWait
@@ -10,7 +9,8 @@ from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
 from webdriver_manager.chrome import ChromeDriverManager
 
-download_dir = "D:\TeachMeSkills\Dev\my_project\lesson21_hw"
+DOWNLOAD_DIR = "D:\TeachMeSkills\Dev\my_project\lesson21_hw"
+FILE_NAME = "file-sample_150kB.pdf"
 
 
 @pytest.fixture()
@@ -29,9 +29,10 @@ def driver_ru():
     options.add_argument("--start-maximized")
     options.add_argument("--lang=ru")
     options.add_experimental_option("prefs", {
-        "download.default_directory": download_dir,
+        "download.default_directory": DOWNLOAD_DIR,
         "download.prompt_for_download": False,
         "download.directory_upgrade": True,
+        "plugins.always_open_pdf_externally": True,
         "safebrowsing.enabled": True
     })
     service = Service(ChromeDriverManager().install())
@@ -107,73 +108,54 @@ def test_task3_alerts(driver):
     assert "Selenium Test" in result.text, "Введенный текст не совпадает"
 
 
-def test_task4_сapabilities(driver_ru):
+def test_task4_1_сapabilities(driver_ru):
     # Проверка запуска браузера на русском языке
     driver_ru.get("https://www.google.com")
     assert driver_ru.execute_script("return navigator.language") == "ru-RU", \
         "Текущий язык браузера не русский"
 
+
+def test_task4_2_сapabilities(driver_ru):
+    # Настроим ожидание
+    wait = WebDriverWait(driver_ru, 10)
+
+    # Перейдем на главную страницу
     driver_ru.get("https://file-examples.com")
 
-    # Находим необходимую кнопку для перехода на страницу скачивания документов
-    browse_buttons = driver_ru.find_elements(By.CLASS_NAME, "feature-item")
-    document_button = None
-    for button in browse_buttons:
-        title = button.find_element(By.CSS_SELECTOR, "h3").text
-        if title == "Documents":
-            document_button = button.find_element(By.CSS_SELECTOR, "a.btn")
-            break
-    driver_ru.execute_script("arguments[0].scrollIntoView({block: 'center'});",
-                             document_button
-                             )
-    document_button = WebDriverWait(driver_ru, 10).until(
-        EC.element_to_be_clickable(document_button)
-    )
-    document_button.click()
+    # Закроем окно cookie
+    close_cookie_window(driver_ru)
 
-    # Если появляется рекламмный баннер, то закрываем его
-    try:
-        wait_banner = WebDriverWait(driver_ru, timeout=10, poll_frequency=1)
-        iframe_banner1 = wait_banner.until(
-            EC.presence_of_element_located((By.CSS_SELECTOR, "iframe[name*='aswift']"))
-        )
-        driver_ru.switch_to.frame(iframe_banner1)
-        iframe_banner2 = wait_banner.until(
-            EC.presence_of_element_located((By.CSS_SELECTOR, "iframe[name=ad_iframe]"))
-        )
-        driver_ru.switch_to.frame(iframe_banner2)
-        close_button = wait_banner.until(
-            EC.element_to_be_clickable((By.CSS_SELECTOR, "div#dismiss-button"))
-        )
-        close_button.click()
-        driver_ru.switch_to.default_content()
-        driver_ru.switch_to.default_content()
+    # Перейдем на страницу скачивания документов
+    wait.until(EC.element_to_be_clickable((By.ID, "menu-item-27"))).click()
 
-    except TimeoutException:
-        pass
+    # Если появляется рекламный баннер, то закрываем его
+    close_ads(driver_ru)
+    assert "index.php/sample-documents-download/" in driver_ru.current_url, \
+        "Failed to navigate to documents page"
 
     # Найдем нужную кнопку для загрузки PDF файла
-    pdf_download = driver_ru.find_element(
-        By.CSS_SELECTOR,
-        'a[href*="sample-pdf-download"]'
-    )
-    pdf_download.click()
-    select_size_button = driver_ru.find_element(
-        By.CSS_SELECTOR,
-        'a[href*="150kB"]'
-    )
+    search_field = driver_ru.find_element(By.CSS_SELECTOR,
+                                          "#table-files_filter > label > input[type=search]"
+                                          )
+    scroll_to_element(driver_ru, search_field)
+    search_field.send_keys("pdf")
+    pdf_download = driver_ru.find_element(By.CSS_SELECTOR,
+                                          '#table-files > tbody > tr > td.text-right.file-link > a'
+                                          )
+    wait.until(EC.element_to_be_clickable(pdf_download)).click()
+    assert "index.php/sample-documents-download/sample-pdf-download/" in driver_ru.current_url, \
+        "Failed to navigate to file page"
 
     # Выберем размер скачиваемого файла
-    select_size_button.click()
-    download_button = WebDriverWait(driver_ru, 10).until(
-        EC.presence_of_element_located((By.ID, "documentDownload"))
+    select_size_button = driver_ru.find_element(
+        By.XPATH,
+        "//td[contains(text(), '150 kB')]/following-sibling::td/a"
     )
-    download_button.click()
+    scroll_to_element(driver_ru, select_size_button)
+    wait.until(EC.element_to_be_clickable(select_size_button)).click()
 
     # Проверим, что файл скачался
-    files = os.listdir(download_dir)
-    assert any(f.endswith(".pdf") for f in files), \
-        "PDF файл не был скачан"
+    wait.until(lambda driver: os.path.exists(os.path.join(DOWNLOAD_DIR, FILE_NAME)), "Файл не скачался")
 
 
 def test_task5_actions(driver):
@@ -193,3 +175,81 @@ def test_task5_actions(driver):
 
     # Проверим, что перетаскивание прошло успешно
     assert "Dropped!" in element_to_drop.text, "Перетаскивание элемента не выполнено"
+
+
+def close_ads(driver_ru):
+    """Перебирает все рекламные iframes, ищет кнопку 'Close' и закрывает рекламу."""
+    try:
+        # Находим все iframes на странице
+        all_iframes = driver_ru.find_elements(By.TAG_NAME, "iframe")
+        print(f"Found {len(all_iframes)} iframes on the page.")
+
+        for iframe in all_iframes:
+            try:
+                iframe_id = iframe.get_attribute("id")
+                if not iframe_id or not iframe_id.startswith("aswift"):
+                    continue  # Пропускаем не относящиеся к рекламе iframes
+
+                print(f"Trying to switch to iframe: {iframe_id}")
+                driver_ru.switch_to.frame(iframe)
+
+                # Проверяем кнопку закрытия сразу в этом iframe
+                try:
+                    ad_close_button = WebDriverWait(driver_ru, 2).until(
+                        EC.element_to_be_clickable((By.ID, "dismiss-button"))
+                    )
+                    ad_close_button.click()
+                    print("Ad banner closed in main iframe.")
+                    driver_ru.switch_to.default_content()
+                    return  # Выходим из функции сразу
+
+                except Exception:
+                    print("No close button found in main iframe, checking nested iframe.")
+
+                # Ищем вложенный iframe с рекламой
+                try:
+                    nested_iframe = driver_ru.find_element(By.TAG_NAME, "iframe")
+                    driver_ru.switch_to.frame(nested_iframe)
+                    print("Switched to nested ad_iframe.")
+
+                    # Проверяем кнопку закрытия внутри вложенного iframe
+                    ad_close_button = WebDriverWait(driver_ru, 2).until(
+                        EC.element_to_be_clickable((By.ID, "dismiss-button"))
+                    )
+                    ad_close_button.click()
+                    print("Ad banner closed in nested iframe.")
+                    driver_ru.switch_to.default_content()
+                    return  # Выходим из функции сразу
+
+                except Exception:
+                    print(f"No ad found in nested iframe of {iframe_id}, switching back.")
+
+            except Exception as e:
+                print(f"Error switching to iframe {iframe_id}: {e}")
+
+            finally:
+                driver_ru.switch_to.default_content()  # Возвращаемся в основной контент
+
+        print("No ads found in any iframe.")
+
+    except Exception as e:
+        print(f"General error while handling ads: {e}")
+
+    finally:
+        driver_ru.switch_to.default_content()
+        print("Returned to main content.")
+
+
+def scroll_to_element(driver, element):
+    driver.execute_script("arguments[0].scrollIntoView();", element)
+
+
+def close_cookie_window(driver):
+    """Close the cookie banner if present."""
+    try:
+        cookie_close_button = WebDriverWait(driver, 10).until(
+            EC.element_to_be_clickable((By.CLASS_NAME, "fc-button.fc-cta-consent.fc-primary-button"))
+        )
+        cookie_close_button.click()
+    except Exception:
+        print("No cookie banner to close.")
