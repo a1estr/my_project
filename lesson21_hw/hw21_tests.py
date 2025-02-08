@@ -82,7 +82,7 @@ def test_task3_alerts(driver):
 
     # Проверка простого алерта и подтверждение его
     alert_button1 = driver.find_element(By.ID, "alertButton")
-    driver.execute_script("arguments[0].scrollIntoView();", alert_button1)
+    scroll_to_element(driver, alert_button1)
     alert_button1.click()
     alert1 = driver.switch_to.alert
     assert alert1.text == "You clicked a button", "Появился неправильный аллерт"
@@ -90,7 +90,7 @@ def test_task3_alerts(driver):
 
     # Проверка подтверждающего алерта и отмена его
     alert_button2 = driver.find_element(By.ID, "confirmButton")
-    driver.execute_script("arguments[0].scrollIntoView();", alert_button2)
+    scroll_to_element(driver, alert_button2)
     alert_button2.click()
     alert2 = driver.switch_to.alert
     assert alert2.text == "Do you confirm action?", "Появился неправильный аллерт"
@@ -98,7 +98,7 @@ def test_task3_alerts(driver):
 
     # Проверка prompt-алерта и ввод текста
     alert_button3 = driver.find_element(By.ID, "promtButton")
-    driver.execute_script("arguments[0].scrollIntoView();", alert_button3)
+    scroll_to_element(driver, alert_button3)
     alert_button3.click()
     alert3 = driver.switch_to.alert
     assert alert3.text == "Please enter your name", "Появился неправильный аллерт"
